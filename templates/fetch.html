@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Class PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        iframe { width: 100%; height: 500px; border: none; }
+    </style>
+</head>
+<body>
+    <h1 id="fetch">Fetch Class PDF from Azure Blob Storage</h1>
+    <form id="fetchPdfForm">
+        <label for="classSelect">Select Class:</label>
+        <select id="classSelect" name="class">
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+        </select>
+        <button type="submit">Fetch PDF</button>
+    </form>
+    <div id="pdfLinkContainer"></div>
+    <iframe id="pdfViewer" hidden></iframe>
+
+    <script>
+        document.getElementById('fetchPdfForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var classSelected = document.getElementById('classSelect').value;
+            fetch(`/fetch-pdf?class=${classSelected}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.url) {
+                        // Display the SAS URL
+                        document.getElementById('pdfLinkContainer').innerHTML = `PDF Link: <a href="${data.url}" target="_blank">Open PDF</a>`;
+
+                        // Load the PDF in an iframe
+                        var pdfViewer = document.getElementById('pdfViewer');
+                        pdfViewer.src = data.url;
+                        pdfViewer.hidden = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching PDF:', error);
+                    document.getElementById('pdfLinkContainer').textContent = 'Failed to fetch PDF.';
+                });
+        });
+    </script>
+</body>
+</html>
